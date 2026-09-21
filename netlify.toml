@@ -1,0 +1,9 @@
+[build]
+  publish = "."
+  command = "echo ready"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
