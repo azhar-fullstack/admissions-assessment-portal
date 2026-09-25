@@ -139,3 +139,11 @@ th{color:var(--muted);font-weight:700}
   .score-grid{break-inside:avoid}
   .warning{break-inside:avoid}
 }
+
+/* Interview-day mode */
+body.interview-mode button,
+body.interview-mode .nav,
+body.interview-mode input,
+body.interview-mode select,
+body.interview-mode textarea{min-height:44px;font-size:1.05rem}
+body.interview-mode .item,body.interview-mode .panel{padding:1rem}

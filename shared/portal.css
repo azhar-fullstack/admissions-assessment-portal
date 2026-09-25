@@ -1,0 +1,91 @@
+/* Shared styles — Margaret E. Gemstone STEM Academy portals */
+:root {
+  --ink: #1c2430;
+  --muted: #5b6675;
+  --line: #d7dde6;
+  --bg: #f4f6f9;
+  --card: #ffffff;
+  --brand: #2f5d50;
+  --brand-dark: #23463c;
+  --accent: #c4a35a;
+  --danger: #9b2c2c;
+  --ok: #1f6b4a;
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(28, 36, 48, 0.08);
+  --font: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; font-family: var(--font); color: var(--ink); background: var(--bg); }
+a { color: var(--brand); }
+.topbar {
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  padding: 1rem 1.25rem; background: #fff; border-bottom: 3px solid var(--accent);
+}
+.brand { font-weight: 700; font-size: 1.15rem; color: var(--brand-dark); }
+.sub { color: var(--muted); font-size: 0.9rem; }
+.wrap { max-width: 980px; margin: 0 auto; padding: 1.25rem; }
+.hero {
+  background: linear-gradient(145deg, #e8f1ed 0%, #fff 55%, #f7f1e4 100%);
+  border: 1px solid var(--line); border-radius: calc(var(--radius) + 4px);
+  padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.25rem;
+}
+.hero h1 { margin: 0.35rem 0; font-size: clamp(1.5rem, 3vw, 2.1rem); }
+.grid {
+  display: grid; gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 1.1rem; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 0.6rem;
+}
+.card h2 { margin: 0; font-size: 1.1rem; color: var(--brand-dark); }
+.card p { margin: 0; color: var(--muted); font-size: 0.95rem; flex: 1; }
+.btn, button.primary, button.secondary, button.ghost {
+  appearance: none; border-radius: 10px; border: 1px solid transparent;
+  padding: 0.7rem 1rem; font: inherit; cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+}
+.btn.primary, button.primary { background: var(--brand); color: #fff; }
+.btn.primary:hover, button.primary:hover { background: var(--brand-dark); }
+.btn.secondary, button.secondary { background: #fff; border-color: var(--line); color: var(--ink); }
+.btn.ghost, button.ghost { background: transparent; border-color: var(--line); }
+.badge {
+  display: inline-block; background: #e7f0ec; color: var(--brand-dark);
+  border-radius: 999px; padding: 0.2rem 0.6rem; font-size: 0.8rem;
+}
+.panel {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 1.1rem; box-shadow: var(--shadow); margin-bottom: 1rem;
+}
+label { display: block; margin: 0.75rem 0; font-weight: 600; font-size: 0.92rem; }
+input, select, textarea {
+  width: 100%; margin-top: 0.35rem; padding: 0.65rem 0.75rem; border: 1px solid var(--line);
+  border-radius: 10px; font: inherit; background: #fff;
+}
+textarea { min-height: 90px; resize: vertical; }
+.msg { min-height: 1.2rem; color: var(--danger); margin-top: 0.5rem; }
+.msg.ok { color: var(--ok); }
+.muted { color: var(--muted); }
+.row { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; }
+.hidden { display: none !important; }
+.q-card {
+  border: 1px solid var(--line); border-radius: 12px; padding: 0.9rem; margin: 0.75rem 0; background: #fafbfc;
+}
+.section-title { margin: 1.25rem 0 0.4rem; color: var(--brand-dark); }
+.progress {
+  height: 8px; background: #e6ebe9; border-radius: 999px; overflow: hidden; margin: 0.75rem 0;
+}
+.progress > span { display: block; height: 100%; background: var(--brand); }
+.chip {
+  display: inline-flex; gap: 0.35rem; flex-wrap: wrap;
+}
+.chip label { font-weight: 500; background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 0.35rem 0.7rem; margin: 0.2rem; }
+.footer-note { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 1.5rem 1rem; }
+@media (max-width: 700px) {
+  .topbar { flex-direction: column; align-items: flex-start; }
+  .wrap { padding: 0.85rem; }
+}
+@media print {
+  .topbar, .no-print { display: none !important; }
+  body { background: #fff; }
+}

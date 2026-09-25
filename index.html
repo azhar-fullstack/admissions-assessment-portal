@@ -3,210 +3,77 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Admissions Assessment Portal</title>
-<link rel="stylesheet" href="styles.css">
+<title>Margaret E. Gemstone STEM Academy — School Portals</title>
+<link rel="stylesheet" href="shared/portal.css">
 </head>
 <body>
 <header class="topbar">
   <div>
-    <div class="brand">Admissions Assessment Portal</div>
-    <div class="sub">Primary 1–6 • School admissions readiness assessments</div>
+    <div class="brand" id="schoolBrand">Margaret E. Gemstone STEM Academy</div>
+    <div class="sub">One platform · admissions · jobs · assessments · adult learning</div>
   </div>
-  <div class="top-actions">
-    <span id="staffLabel" class="staff-label hidden"></span>
-    <span id="modeBadge" class="badge">Staff portal</span>
-    <button id="logoutBtn" class="ghost hidden" type="button">Sign out</button>
-  </div>
+  <a class="btn secondary" id="schoolSiteLink" href="#" target="_blank" rel="noopener">School website</a>
 </header>
 
-<div id="loginView" class="center-card">
-  <div class="login-mark">School Admissions</div>
-  <h1>Staff Sign In</h1>
-  <p class="muted">Sign in with your staff account to access the admissions portal.</p>
-  <label>Email<input id="email" type="email" autocomplete="username" placeholder="you@school.org"></label>
-  <label>Password<input id="password" type="password" autocomplete="current-password"></label>
-  <button id="loginBtn" class="primary" type="button">Sign In</button>
-  <div id="loginMsg" class="msg" role="alert"></div>
-  <p class="login-footnote muted">Staff accounts are managed in Supabase Authentication. Contact your administrator for access.</p>
-</div>
+<main class="wrap">
+  <section class="hero">
+    <span class="badge">School portals</span>
+    <h1>Welcome — choose how you want to continue</h1>
+    <p class="muted">Families, job applicants, adult learners and school staff each have their own secure access. Sign in is separate for each area.</p>
+  </section>
 
-<div id="appView" class="app hidden">
-<aside>
-  <div class="aside-label">Navigation</div>
-  <button class="nav active" data-view="dashboard" type="button">Dashboard</button>
-  <button class="nav" data-view="new" type="button">New Assessment</button>
-  <button class="nav" data-view="records" type="button">Student Records</button>
-  <button class="nav" data-view="settings" type="button">Setup</button>
-</aside>
+  <section class="grid">
+    <article class="card">
+      <h2>Family — child admission</h2>
+      <p>Apply online for your child’s place. Save a draft and submit when ready.</p>
+      <a class="btn primary" href="apply-child/">Open child application</a>
+    </article>
 
-<main>
-<section id="dashboard" class="view active">
-  <div class="hero">
-    <div>
-      <h1>Admissions Dashboard</h1>
-      <p>Welcome. Start a new admission assessment or review student records.</p>
-    </div>
-    <button class="primary" data-jump="new" type="button">Start New Assessment</button>
-  </div>
-  <div class="stats">
-    <div class="stat"><span>Students</span><strong id="studentCount">0</strong></div>
-    <div class="stat"><span>Assessments</span><strong id="assessmentCount">0</strong></div>
-    <div class="stat"><span>Completed</span><strong id="completedCount">0</strong></div>
-    <div class="stat"><span>In Progress</span><strong id="inProgressCount">0</strong></div>
-  </div>
-  <div class="panel">
-    <div class="section-row">
-      <h2>Recent Assessments</h2>
-      <button type="button" class="secondary smallbtn" data-jump="records">View all records</button>
-    </div>
-    <div id="recentTable"></div>
-  </div>
-</section>
+    <article class="card">
+      <h2>Adult education — apply</h2>
+      <p>Adults (18+) can apply for the Functional Education programme.</p>
+      <a class="btn primary" href="apply-adult/">Open adult application</a>
+    </article>
 
-<section id="new" class="view">
-  <div id="newStart" class="panel">
-    <h1>New Admission Assessment</h1>
-    <p class="muted">Find an existing student or create a new record, then choose the admission year and class.</p>
+    <article class="card">
+      <h2>Staff jobs</h2>
+      <p>Apply for teaching or support roles at the STEM Academy or adult programme.</p>
+      <a class="btn primary" href="jobs/">Open job application</a>
+    </article>
 
-    <div class="tabs" role="tablist">
-      <button type="button" class="tab active" data-student-tab="search">Find student</button>
-      <button type="button" class="tab" data-student-tab="create">Create student</button>
-    </div>
+    <article class="card">
+      <h2>STEM discovery quiz</h2>
+      <p>Lower primary STEM quiz (Basic 1–3). Useful on interview / discovery day.</p>
+      <a class="btn secondary" href="quiz-stem/">Open STEM quiz</a>
+    </article>
 
-    <div id="studentSearchPane" class="student-pane">
-      <label>Search students
-        <input id="studentSearchInput" type="search" placeholder="Name, guardian, or previous school">
-      </label>
-      <div id="studentSearchResults" class="search-results"></div>
-      <div id="selectedStudentCard" class="selected-student hidden"></div>
-    </div>
+    <article class="card">
+      <h2>Adult skills quiz</h2>
+      <p>Everyday skills discovery quiz for adult learners — finding a starting point.</p>
+      <a class="btn secondary" href="quiz-adult/">Open adult quiz</a>
+    </article>
 
-    <div id="studentCreatePane" class="student-pane hidden">
-      <div class="form-grid">
-        <label>Student full name<input id="studentName" autocomplete="name"></label>
-        <label>Date of birth<input id="studentDob" type="date"></label>
-        <label>Age<input id="studentAge" inputmode="numeric"></label>
-        <label>Parent / guardian<input id="guardian"></label>
-        <label>Previous school / class<input id="previousSchool"></label>
-        <label>Home language(s)<input id="homeLanguage"></label>
-      </div>
-    </div>
+    <article class="card">
+      <h2>Staff — child assessments</h2>
+      <p>School staff only. Run Primary 1–6 admissions assessments, save, report and print.</p>
+      <a class="btn secondary" href="assess/">Staff assessment portal</a>
+    </article>
+  </section>
 
-    <div class="form-grid assessment-meta">
-      <label>Admission year
-        <input id="admissionYear" placeholder="e.g. 2026/2027" list="yearSuggestions">
-        <datalist id="yearSuggestions"></datalist>
-      </label>
-      <label>Class applying for
-        <select id="classLevel">
-          <option value="1">Primary 1</option>
-          <option value="2">Primary 2</option>
-          <option value="3">Primary 3</option>
-          <option value="4">Primary 4</option>
-          <option value="5">Primary 5</option>
-          <option value="6">Primary 6</option>
-        </select>
-      </label>
-      <label>Assessment date<input id="assessmentDate" type="date"></label>
-    </div>
-
-    <div id="studentHistory" class="student-history hidden"></div>
-    <button id="beginBtn" class="primary" type="button">Begin Assessment</button>
-    <div id="newMsg" class="msg" role="alert"></div>
-  </div>
-
-  <div id="assessmentWorkspace" class="hidden">
-    <div class="assessment-head panel">
-      <div>
-        <div id="assessLockBanner" class="lock-banner hidden">This assessment is completed (read-only).</div>
-        <h1 id="assessmentTitle"></h1>
-        <p id="assessmentBasis" class="muted"></p>
-        <p id="assessmentMeta" class="muted small"></p>
-        <div class="progress-wrap">
-          <div class="progress-bar"><span id="progressFill"></span></div>
-          <span id="progressText" class="small muted">Section 1 of 5</span>
-        </div>
-      </div>
-      <div class="head-actions">
-        <span id="saveStatus" class="save-status" aria-live="polite"></span>
-        <button id="saveBtn" class="secondary" type="button">Save Progress</button>
-        <button id="finishBtn" class="primary" type="button">Complete &amp; Report</button>
-      </div>
-    </div>
-    <div class="assessment-layout">
-      <nav id="assessmentNav" class="assessment-nav" aria-label="Assessment sections"></nav>
-      <div>
-        <div id="assessmentPages"></div>
-        <div class="pager">
-          <button id="prevPage" class="secondary" type="button">Previous</button>
-          <button id="nextPage" class="primary" type="button">Next</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="records" class="view">
-  <div class="panel">
-    <div class="section-row records-head">
-      <div>
-        <h1>Student Records</h1>
-        <p class="muted">Search, continue unfinished assessments, or open completed reports.</p>
-      </div>
-    </div>
-    <div class="filters">
-      <input id="recordSearch" type="search" placeholder="Search student, year, or class">
-      <select id="filterStatus">
-        <option value="">All statuses</option>
-        <option value="in_progress">In progress</option>
-        <option value="completed">Completed</option>
-      </select>
-      <select id="filterClass">
-        <option value="">All classes</option>
-        <option value="1">Primary 1</option>
-        <option value="2">Primary 2</option>
-        <option value="3">Primary 3</option>
-        <option value="4">Primary 4</option>
-        <option value="5">Primary 5</option>
-        <option value="6">Primary 6</option>
-      </select>
-    </div>
-    <div id="recordsTable"></div>
-  </div>
-</section>
-
-<section id="settings" class="view">
-  <div class="panel">
-    <h1>Portal Setup</h1>
-    <p><strong>Backend:</strong> Supabase (shared database + staff authentication)</p>
-    <p class="muted">All students and assessments are stored centrally. Multiple staff can conduct assessments at the same time.</p>
-
-    <h2>Staff access</h2>
-    <ol>
-      <li>Create staff users in Supabase → Authentication (public sign-up is disabled).</li>
-      <li>A <code>staff_profiles</code> row is created automatically for each new user.</li>
-      <li>Promote an admin only via the SQL Editor if needed.</li>
-    </ol>
-    <div class="warning">Do not put a Supabase service-role key in this website. Only the anon/public key belongs in the browser.</div>
-  </div>
-</section>
+  <p class="footer-note">Margaret E. Gemstone STEM Academy · Secure Supabase-backed portals</p>
 </main>
-</div>
 
-<div id="reportModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="reportHeading">
-  <div class="modal-card report-sheet">
-    <button id="closeReport" class="modal-close no-print" type="button" aria-label="Close">×</button>
-    <div id="reportContent"></div>
-    <div class="modal-actions no-print">
-      <button id="printReport" class="primary" type="button">Print / Save as PDF</button>
-      <button id="closeReport2" class="secondary" type="button">Close</button>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-<script src="data-layer.js"></script>
-<script src="app.js"></script>
+<script>
+  const c = window.PORTAL_CONFIG || {};
+  if (c.SCHOOL_NAME) document.getElementById('schoolBrand').textContent = c.SCHOOL_NAME;
+  const link = document.getElementById('schoolSiteLink');
+  if (c.SCHOOL_WEBSITE_URL) {
+    link.href = c.SCHOOL_WEBSITE_URL;
+    link.textContent = 'Visit school website';
+  } else {
+    link.style.display = 'none';
+  }
+</script>
 </body>
 </html>

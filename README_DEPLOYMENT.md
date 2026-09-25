@@ -1,24 +1,29 @@
-# Admissions Assessment Portal — Deployment
+# School Portals — Phase 2
 
 ## Live URL
-
 https://azhar-fullstack.github.io/admissions-assessment-portal/
 
-## Staff sign-in
+## Access links
+| Portal | Path |
+|---|---|
+| Landing (all portals) | `/` |
+| Child admission application | `/apply-child/` |
+| Adult education application | `/apply-adult/` |
+| Staff job application | `/jobs/` |
+| STEM discovery quiz | `/quiz-stem/` |
+| Adult skills quiz | `/quiz-adult/` |
+| Staff child assessments (Primary 1–6) | `/assess/` |
 
-Sign in with a staff account from **Supabase → Authentication** (public sign-up is disabled).
+## SQL installed
+All client SQL files live in `sql/` and were applied to Supabase:
+- Child admission (`meg_adm_v1_*`)
+- Adult admission (`meg_adult_adm_v1_*`)
+- Staff jobs (`meg_jobs_v1_*`)
+- Lower primary STEM quiz (`stem_lp_v1_*`)
+- Adult functional quiz (`adult_functional_p4_v1_*`)
+- Helpers (`00_portal_helpers.sql`) — quiz score wrappers + academic years
 
-Workflow: Dashboard → New Assessment → student → Primary 1–6 → save/resume → complete → report → print.
-
-## Supabase
-
-- Project URL + anon key are in `config.js`
-- Schema: `supabase-schema.sql` (already applied)
-- Auth Site URL points at the live GitHub Pages URL
-- Never put the **service_role** key in the website
-
-## Security
-
-- RLS: only authenticated active staff can read/write students and assessments
-- Answer keys are hidden in the assessment UI
-- Staff role changes must be done in the SQL Editor
+## Notes
+- Set `SCHOOL_WEBSITE_URL` and `CONTACT_EMAIL` in `config.js`
+- Parent PDF email opens the device mail app with a summary (full PDF via Print)
+- Interview-day mode is a staff toggle under Setup in `/assess/`

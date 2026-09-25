@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Adult Everyday Skills Quiz</title>
+<link rel="stylesheet" href="../shared/portal.css">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <div class="brand">Adult Everyday Skills Quiz</div>
+    <div class="sub"><a href="../">← All portals</a> · Age 18+</div>
+  </div>
+</header>
+<main class="wrap">
+  <section class="panel" id="quizPanel">
+    <h1 id="quizTitle">Everyday Skills Discovery</h1>
+    <p class="muted" id="quizIntro">Choose one answer per question. Take your time — this finds a starting point for learning, not a pass/fail exam.</p>
+    <div class="progress"><span id="bar" style="width:0%"></span></div>
+    <p class="muted" id="progressText">Question 1 of 20</p>
+    <div id="qBox"></div>
+    <div class="row no-print">
+      <button class="secondary" id="prevBtn" type="button">Previous</button>
+      <button class="primary" id="nextBtn" type="button">Next</button>
+      <button class="secondary hidden" id="scoreBtn" type="button">See result</button>
+    </div>
+    <div id="msg" class="msg"></div>
+  </section>
+  <section class="panel hidden" id="resultPanel">
+    <h1>Your result</h1>
+    <div id="resultBox"></div>
+    <div class="row no-print">
+      <a class="btn primary" href="../apply-adult/">Apply for adult education</a>
+      <button class="secondary" id="restartBtn" type="button">Try again</button>
+    </div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../config.js"></script>
+<script src="../shared/supabase-client.js"></script>
+<script>
+const SCORE_RPC = 'adult_functional_p4_v1_score_safe';
+const Q_TABLE = 'adult_functional_p4_v1_questions';
+let questions = [];
+let i = 0;
+const answers = {};
+const $ = (id) => document.getElementById(id);
+function setMsg(t){ $('msg').textContent = t || ''; }
+
+async function load() {
+  const sb = PortalShared.getClient();
+  const { data: info } = await sb.from('adult_functional_p4_v1_info').select('details').eq('id',1).maybeSingle();
+  if (info?.details?.title) $('quizTitle').textContent = info.details.title;
+  if (info?.details?.instructions) $('quizIntro').textContent = info.details.instructions;
+  const { data, error } = await sb.from(Q_TABLE).select('*').order('question_number');
+  if (error) return setMsg(error.message);
+  questions = data || [];
+  show();
+}
+function show() {
+  const q = questions[i];
+  if (!q) return;
+  $('progressText').textContent = `Question ${i+1} of ${questions.length}`;
+  $('bar').style.width = `${((i+1)/questions.length)*100}%`;
+  const chosen = answers[q.question_number];
+  $('qBox').innerHTML = `
+    <div class="q-card">
+      <p class="badge">${q.category || ''}</p>
+      <h2 style="margin:0.4rem 0">${q.question_number}. ${q.question_text}</h2>
+      ${['A','B','C'].map(L => {
+        const text = q['option_'+L.toLowerCase()];
+        return `<label style="font-weight:500"><input type="radio" name="ans" value="${L}" ${chosen===L?'checked':''}> ${L}. ${text}</label>`;
+      }).join('')}
+    </div>`;
+  $('prevBtn').disabled = i===0;
+  $('nextBtn').classList.toggle('hidden', i===questions.length-1);
+  $('scoreBtn').classList.toggle('hidden', i!==questions.length-1);
+}
+function capture() {
+  const sel = document.querySelector('input[name="ans"]:checked');
+  if (sel) answers[questions[i].question_number] = sel.value;
+}
+$('prevBtn').onclick = () => { capture(); if (i>0){ i--; show(); } };
+$('nextBtn').onclick = () => { capture(); if (i<questions.length-1){ i++; show(); } };
+$('scoreBtn').onclick = async () => {
+  capture();
+  setMsg('Scoring…');
+  const payload = {};
+  for (let n=1;n<=20;n++) payload[String(n)] = answers[n] || null;
+  const { data, error } = await PortalShared.getClient().rpc(SCORE_RPC, { p_answers: payload });
+  if (error) return setMsg(error.message);
+  $('quizPanel').classList.add('hidden');
+  $('resultPanel').classList.remove('hidden');
+  $('resultBox').innerHTML = `
+    <p><strong>Score:</strong> ${data.score}/${data.maximum} (${data.percentage}%)</p>
+    <p><strong>Suggested starting point:</strong> ${data.suggested_starting_point || ''}</p>
+    <p class="muted">${data.interpretation || ''}</p>`;
+  setMsg('');
+};
+$('restartBtn').onclick = () => location.reload();
+load().catch(e => setMsg(e.message));
+</script>
+</body>
+</html>

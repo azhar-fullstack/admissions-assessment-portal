@@ -88,6 +88,22 @@ function bind() {
   $("#closeReport").onclick = closeReport;
   $("#closeReport2").onclick = closeReport;
   $("#printReport").onclick = () => window.print();
+  $("#emailReport") && ($("#emailReport").onclick = emailParentReport);
+  const im = $("#interviewModeToggle");
+  if (im) {
+    im.checked = localStorage.getItem("portal_interview_mode") === "1";
+    document.body.classList.toggle("interview-mode", im.checked);
+    im.onchange = () => {
+      localStorage.setItem("portal_interview_mode", im.checked ? "1" : "0");
+      document.body.classList.toggle("interview-mode", im.checked);
+      if (im.checked) startInterviewAutosave();
+      else stopInterviewAutosave();
+    };
+    if (im.checked) startInterviewAutosave();
+  }
+  $("#openYearBtn") && ($("#openYearBtn").onclick = openAcademicYear);
+  $("#archiveYearBtn") && ($("#archiveYearBtn").onclick = archiveAcademicYear);
+  loadAcademicYears();
   $("#email").addEventListener("keydown", (e) => e.key === "Enter" && login());
   $("#password").addEventListener("keydown", (e) => e.key === "Enter" && login());
 }
@@ -874,5 +890,71 @@ function showReport(a) {
 
 window.openRecord = openRecord;
 window.resumeRecord = resumeRecord;
+
+let interviewTimer = null;
+function startInterviewAutosave() {
+  stopInterviewAutosave();
+  interviewTimer = setInterval(() => {
+    if (currentAssessment && currentAssessment.status !== "completed" && dirty) {
+      saveAssessment(false, true);
+    }
+  }, 8000);
+}
+function stopInterviewAutosave() {
+  if (interviewTimer) clearInterval(interviewTimer);
+  interviewTimer = null;
+}
+
+function emailParentReport() {
+  if (!currentAssessment) return;
+  const name = currentAssessment.student_name || "Student";
+  const rec = currentAssessment.recommendation || "";
+  const scores = currentAssessment.score_summary || {};
+  const body = `Dear Parent/Guardian,%0A%0APlease find the admissions readiness summary for ${encodeURIComponent(name)}.%0A%0AAdmission year: ${encodeURIComponent(currentAssessment.admission_year || "")}%0AClass applied for: Primary ${encodeURIComponent(currentAssessment.class_level || "")}%0ARecommendation: ${encodeURIComponent(rec)}%0AOverall score: ${encodeURIComponent(scores.total || 0)}/120%0A%0AFor the full printable report, open the portal and use Print / Save as PDF.%0A%0A${encodeURIComponent((window.PORTAL_CONFIG && window.PORTAL_CONFIG.SCHOOL_NAME) || "School Admissions")}`;
+  const to = (window.PORTAL_CONFIG && window.PORTAL_CONFIG.CONTACT_EMAIL) || "";
+  window.location.href = `mailto:${to}?subject=${encodeURIComponent("Admissions readiness report — " + name)}&body=${body}`;
+}
+
+async function loadAcademicYears() {
+  const box = $("#yearList");
+  if (!box) return;
+  try {
+    const sb = await auth().getSupabaseClient();
+    if (!sb) return;
+    const { data, error } = await sb.from("admission_years").select("*").order("opened_at", { ascending: false });
+    if (error) throw error;
+    box.innerHTML = (data || []).map((y) => `${esc(y.year_label)} — <strong>${esc(y.status)}</strong>`).join("<br>") || "No years recorded yet.";
+  } catch (err) {
+    box.textContent = err.message || "Could not load years.";
+  }
+}
+
+async function openAcademicYear() {
+  const label = ($("#yearSetupInput")?.value || "").trim();
+  if (!label) return notify($("#yearMsg"), "Enter a year label like 2027/2028.");
+  try {
+    const sb = await auth().getSupabaseClient();
+    const { error } = await sb.from("admission_years").upsert({ year_label: label, status: "open", opened_at: new Date().toISOString(), archived_at: null });
+    if (error) throw error;
+    notify($("#yearMsg"), "Year opened: " + label, false);
+    loadAcademicYears();
+  } catch (err) {
+    notify($("#yearMsg"), err.message || "Could not open year.");
+  }
+}
+
+async function archiveAcademicYear() {
+  const label = ($("#yearSetupInput")?.value || $("#admissionYear")?.value || "").trim();
+  if (!label) return notify($("#yearMsg"), "Enter the year label to archive.");
+  try {
+    const sb = await auth().getSupabaseClient();
+    const { error } = await sb.from("admission_years").upsert({ year_label: label, status: "archived", archived_at: new Date().toISOString() });
+    if (error) throw error;
+    notify($("#yearMsg"), "Year archived: " + label, false);
+    loadAcademicYears();
+  } catch (err) {
+    notify($("#yearMsg"), err.message || "Could not archive year.");
+  }
+}
 
 init();

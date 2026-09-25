@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Staff Job Application</title>
+<link rel="stylesheet" href="../shared/portal.css">
+</head>
+<body>
+<header class="topbar">
+  <div>
+    <div class="brand">Staff Job Application</div>
+    <div class="sub"><a href="../">← All portals</a></div>
+  </div>
+  <div class="row">
+    <span id="userLabel" class="badge hidden"></span>
+    <button id="logoutBtn" class="ghost hidden" type="button">Sign out</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section id="authPanel" class="panel">
+    <h1>Sign in to apply</h1>
+    <p class="muted">Job applicants need a free account to save drafts and submit securely.</p>
+    <div class="row">
+      <button type="button" class="secondary" id="tabSignIn">Sign in</button>
+      <button type="button" class="ghost" id="tabSignUp">Create account</button>
+    </div>
+    <div id="signInBox">
+      <label>Email<input id="inEmail" type="email" autocomplete="username"></label>
+      <label>Password<input id="inPass" type="password" autocomplete="current-password"></label>
+      <button class="primary" id="signInBtn" type="button">Sign in</button>
+    </div>
+    <div id="signUpBox" class="hidden">
+      <label>Your full name<input id="upName" type="text"></label>
+      <label>Email<input id="upEmail" type="email" autocomplete="email"></label>
+      <label>Password (min 6)<input id="upPass" type="password" autocomplete="new-password"></label>
+      <button class="primary" id="signUpBtn" type="button">Create account</button>
+    </div>
+    <div id="authMsg" class="msg" role="alert"></div>
+  </section>
+
+  <section id="appPanel" class="hidden">
+    <div class="panel">
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <h1 style="margin:0">Employment application form</h1>
+          <p class="muted" id="statusLine">Status: draft</p>
+        </div>
+        <div class="row no-print">
+          <button class="secondary" id="saveBtn" type="button">Save draft</button>
+          <button class="primary" id="submitBtn" type="button">Submit application</button>
+        </div>
+      </div>
+      <div id="formMount"></div>
+      <div id="formMsg" class="msg" role="status"></div>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../config.js"></script>
+<script src="../shared/supabase-client.js"></script>
+<script src="../shared/form-engine.js"></script>
+<script>
+const CFG = {
+  formTable: 'meg_jobs_v1_forms',
+  formCode: 'staff_application_v1',
+  appTable: 'meg_jobs_v1_applications',
+  saveRpc: 'meg_jobs_v1_save_draft',
+  submitRpc: 'meg_jobs_v1_submit'
+};
+let definition = null;
+let applicationId = null;
+
+const $ = (id) => document.getElementById(id);
+function setMsg(el, text, ok=false){ el.textContent = text||''; el.classList.toggle('ok', !!ok && !!text); }
+
+$('tabSignIn').onclick = () => { $('signInBox').classList.remove('hidden'); $('signUpBox').classList.add('hidden'); };
+$('tabSignUp').onclick = () => { $('signUpBox').classList.remove('hidden'); $('signInBox').classList.add('hidden'); };
+
+$('signInBtn').onclick = async () => {
+  setMsg($('authMsg'), '');
+  const { error } = await PortalShared.signIn({ email: $('inEmail').value, password: $('inPass').value });
+  if (error) return setMsg($('authMsg'), error.message);
+  boot();
+};
+$('signUpBtn').onclick = async () => {
+  setMsg($('authMsg'), '');
+  const { data, error } = await PortalShared.signUp({ email: $('upEmail').value, password: $('upPass').value, full_name: $('upName').value });
+  if (error) return setMsg($('authMsg'), error.message);
+  if (data?.user && !data.session) setMsg($('authMsg'), 'Account created. Check your email if confirmation is required, then sign in.', true);
+  else boot();
+};
+$('logoutBtn').onclick = async () => { await PortalShared.signOut(); location.reload(); };
+
+async function boot() {
+  const user = await PortalShared.getUser();
+  if (!user) return;
+  $('authPanel').classList.add('hidden');
+  $('appPanel').classList.remove('hidden');
+  $('logoutBtn').classList.remove('hidden');
+  $('userLabel').classList.remove('hidden');
+  $('userLabel').textContent = user.email;
+  const sb = PortalShared.getClient();
+  const { data: form, error } = await sb.from(CFG.formTable).select('definition').eq('form_code', CFG.formCode).single();
+  if (error) return setMsg($('formMsg'), error.message);
+  definition = form.definition;
+  const { data: apps } = await sb.from(CFG.appTable).select('*').eq('owner_id', user.id).order('updated_at', { ascending: false }).limit(1);
+  const existing = apps && apps[0];
+  applicationId = existing?.id || null;
+  $('statusLine').textContent = 'Status: ' + (existing?.status || 'draft') + (applicationId ? ` · ID ${applicationId.slice(0,8)}…` : '');
+  FormEngine.renderForm(definition, existing?.answers || {}, $('formMount'));
+}
+
+$('saveBtn').onclick = async () => {
+  setMsg($('formMsg'), 'Saving…', true);
+  const answers = FormEngine.collectAnswers($('formMount'));
+  const sb = PortalShared.getClient();
+  const { data, error } = await sb.rpc(CFG.saveRpc, { p_answers: answers, p_application_id: applicationId });
+  if (error) return setMsg($('formMsg'), error.message);
+  applicationId = data;
+  $('statusLine').textContent = 'Status: draft · saved';
+  setMsg($('formMsg'), 'Draft saved.', true);
+};
+
+$('submitBtn').onclick = async () => {
+  if (!applicationId) {
+    const answers = FormEngine.collectAnswers($('formMount'));
+    const sb0 = PortalShared.getClient();
+    const { data, error } = await sb0.rpc(CFG.saveRpc, { p_answers: answers, p_application_id: null });
+    if (error) return setMsg($('formMsg'), error.message);
+    applicationId = data;
+  } else {
+    // save latest answers first
+    const answers = FormEngine.collectAnswers($('formMount'));
+    const sb0 = PortalShared.getClient();
+    const { error: e1 } = await sb0.rpc(CFG.saveRpc, { p_answers: answers, p_application_id: applicationId });
+    if (e1) return setMsg($('formMsg'), e1.message);
+  }
+  const sb = PortalShared.getClient();
+  const { data, error } = await sb.rpc(CFG.submitRpc, { p_application_id: applicationId });
+  if (error) return setMsg($('formMsg'), error.message);
+  $('statusLine').textContent = 'Status: submitted';
+  setMsg($('formMsg'), 'Application submitted. The school will contact you.', true);
+};
+
+boot().catch((e) => setMsg($('authMsg'), e.message || String(e)));
+</script>
+</body>
+</html>
