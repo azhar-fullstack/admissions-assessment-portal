@@ -20,22 +20,22 @@
 
 <main class="wrap">
   <section id="authPanel" class="panel">
-    <h1>Sign in to apply</h1>
-    <p class="muted">Parents and guardians need a free account to save drafts and submit securely.</p>
+    <h1>Create a login to apply</h1>
+    <p class="muted">You must create a free account (or sign in) before you can open the child admission form. This keeps your application private and lets you save a draft.</p>
     <div class="row">
-      <button type="button" class="secondary" id="tabSignIn">Sign in</button>
-      <button type="button" class="ghost" id="tabSignUp">Create account</button>
+      <button type="button" class="secondary" id="tabSignUp">Create account</button>
+      <button type="button" class="ghost" id="tabSignIn">Sign in</button>
     </div>
-    <div id="signInBox">
-      <label>Email<input id="inEmail" type="email" autocomplete="username"></label>
-      <label>Password<input id="inPass" type="password" autocomplete="current-password"></label>
-      <button class="primary" id="signInBtn" type="button">Sign in</button>
-    </div>
-    <div id="signUpBox" class="hidden">
+    <div id="signUpBox">
       <label>Your full name<input id="upName" type="text"></label>
       <label>Email<input id="upEmail" type="email" autocomplete="email"></label>
       <label>Password (min 6)<input id="upPass" type="password" autocomplete="new-password"></label>
-      <button class="primary" id="signUpBtn" type="button">Create account</button>
+      <button class="primary" id="signUpBtn" type="button">Create account &amp; continue</button>
+    </div>
+    <div id="signInBox" class="hidden">
+      <label>Email<input id="inEmail" type="email" autocomplete="username"></label>
+      <label>Password<input id="inPass" type="password" autocomplete="current-password"></label>
+      <button class="primary" id="signInBtn" type="button">Sign in</button>
     </div>
     <div id="authMsg" class="msg" role="alert"></div>
   </section>
