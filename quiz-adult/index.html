@@ -12,9 +12,34 @@
     <div class="brand">Adult Everyday Skills Quiz</div>
     <div class="sub"><a href="../">← All portals</a> · Age 18+</div>
   </div>
+  <div class="row">
+    <span id="userLabel" class="badge hidden"></span>
+    <button id="logoutBtn" class="ghost hidden" type="button">Sign out</button>
+  </div>
 </header>
 <main class="wrap">
-  <section class="panel" id="quizPanel">
+  <section id="authPanel" class="panel">
+    <h1>Create a login to start the assessment</h1>
+    <p class="muted">Testers must create a free account (or sign in) before opening the everyday skills quiz. This protects the assessment content.</p>
+    <div class="row">
+      <button type="button" class="secondary" id="tabSignUp">Create account</button>
+      <button type="button" class="ghost" id="tabSignIn">Sign in</button>
+    </div>
+    <div id="signUpBox">
+      <label>Your full name<input id="upName" type="text"></label>
+      <label>Email<input id="upEmail" type="email" autocomplete="email"></label>
+      <label>Password (min 6)<input id="upPass" type="password" autocomplete="new-password"></label>
+      <button class="primary" id="signUpBtn" type="button">Create account &amp; continue</button>
+    </div>
+    <div id="signInBox" class="hidden">
+      <label>Email<input id="inEmail" type="email" autocomplete="username"></label>
+      <label>Password<input id="inPass" type="password" autocomplete="current-password"></label>
+      <button class="primary" id="signInBtn" type="button">Sign in</button>
+    </div>
+    <div id="authMsg" class="msg" role="alert"></div>
+  </section>
+
+  <section class="panel hidden" id="quizPanel">
     <h1 id="quizTitle">Everyday Skills Discovery</h1>
     <p class="muted" id="quizIntro">Choose one answer per question. Take your time — this finds a starting point for learning, not a pass/fail exam.</p>
     <div class="progress"><span id="bar" style="width:0%"></span></div>
@@ -47,6 +72,36 @@ let i = 0;
 const answers = {};
 const $ = (id) => document.getElementById(id);
 function setMsg(t){ $('msg').textContent = t || ''; }
+function setAuthMsg(t, ok=false){ $('authMsg').textContent = t || ''; $('authMsg').classList.toggle('ok', !!ok && !!t); }
+
+$('tabSignIn').onclick = () => { $('signInBox').classList.remove('hidden'); $('signUpBox').classList.add('hidden'); };
+$('tabSignUp').onclick = () => { $('signUpBox').classList.remove('hidden'); $('signInBox').classList.add('hidden'); };
+
+$('signInBtn').onclick = async () => {
+  setAuthMsg('');
+  const { error } = await PortalShared.signIn({ email: $('inEmail').value, password: $('inPass').value });
+  if (error) return setAuthMsg(error.message);
+  boot();
+};
+$('signUpBtn').onclick = async () => {
+  setAuthMsg('');
+  const { data, error } = await PortalShared.signUp({ email: $('upEmail').value, password: $('upPass').value, full_name: $('upName').value });
+  if (error) return setAuthMsg(error.message);
+  if (data?.user && !data.session) setAuthMsg('Account created. Check your email if confirmation is required, then sign in.', true);
+  else boot();
+};
+$('logoutBtn').onclick = async () => { await PortalShared.signOut(); location.reload(); };
+
+async function boot() {
+  const user = await PortalShared.getUser();
+  if (!user) return;
+  $('authPanel').classList.add('hidden');
+  $('quizPanel').classList.remove('hidden');
+  $('logoutBtn').classList.remove('hidden');
+  $('userLabel').classList.remove('hidden');
+  $('userLabel').textContent = user.email;
+  await load();
+}
 
 async function load() {
   const sb = PortalShared.getClient();
@@ -99,7 +154,7 @@ $('scoreBtn').onclick = async () => {
   setMsg('');
 };
 $('restartBtn').onclick = () => location.reload();
-load().catch(e => setMsg(e.message));
+boot().catch((e) => setAuthMsg(e.message || String(e)));
 </script>
 </body>
 </html>
